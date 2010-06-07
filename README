@@ -1,0 +1,12 @@
+Algorithm::Viterbi - Decoding Hidden Markov Models
+==============================================================================
+
+This module contains an implementation of the Viterbi algorithm for decoding
+Hidden Markov Models (HMMs). It contains a class Algorithm::Viterbi, which
+handles the actual decoding of the HMM, and Algorithm::Viterbi::HMM which
+represents the HMM.
+
+XXX: An implementation of the Forward algorithm would probably use the same
+datastructure, so it would make sense to share the HMM class between them. How
+to best to this? Inverse the hierarchy, and have Algorithm::HMM contain all
+things HMM, or some other form of cleverness? See how CPAN handles this.
