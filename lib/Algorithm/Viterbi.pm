@@ -115,8 +115,6 @@ method decode($hmm: @input) {
         my $prev-tag = @!alphabet[$prev-state];
         my $new-p = @trellis[$index][$prev-state]
                   * %!p-transition{$prev-tag}{End};
-        @trellis[$index][$prev-state].perl.say;
-        %!p-transition{$prev-tag}{End}.perl.say;
 
         if $new-p > $max-p {
             $max-p = $new-p;
