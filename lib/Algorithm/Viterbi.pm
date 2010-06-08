@@ -41,14 +41,16 @@ has @!alphabet; # The HMM's alphabet
 has %.p-transition;
 has %.p-emission;
 
+# TODO: It might be nice to be able to do the computations both using
+# logarithms and the way it works now?
 method BUILD(:@alphabet!) {
     callsame;
 }
 
 # TODO: Algorithm::Viterbi on CPAN also computes the Forward probability of
 # the sequence. Should be doable to compute as well.
-# An improvement might be to create a Role for observations so that domain
-# objects can be passed directly to the decoder.
+# TODO: An improvement might be to create a Role for observations so that
+# domain objects can be passed directly to the decoder.
 #method decode($hmm: Array of Observation @input) {
 method decode($hmm: @input) {
     # We represent the trellis as a 2D list. The first dimension is the "tick"
@@ -128,6 +130,10 @@ method decode($hmm: @input) {
 
 # Compute unsmoothed bigram probabilities from an input file.
 multi method train($hmm: Str $file) {
+    # XXX: It'd probably be more efficient to do the counting inline in the
+    # actions and then have a private method that normalises the counts,
+    # instead of keeping the whole corpus in memory and dispatching to the
+    # other train().
     my $res = Grammar.parsefile($file, :actions(Actions.new));
     $hmm.train($res.ast);
 }
