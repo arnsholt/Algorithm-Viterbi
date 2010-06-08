@@ -38,19 +38,11 @@ my class Actions {
 }
 
 has @!alphabet; # The HMM's alphabet
-has %!name-to-index;
 has %.p-transition;
 has %.p-emission;
 
-method BUILD(:@alphabet) {
-    @!alphabet = @alphabet;
-
-    for @!alphabet.kv -> $index, $state {
-        %!name-to-index{$state} = $index;
-    }
-
-    %!p-transition = {};
-    %!p-emission = {};
+method BUILD(:@alphabet!) {
+    callsame;
 }
 
 # TODO: Algorithm::Viterbi on CPAN also computes the Forward probability of
@@ -232,9 +224,13 @@ tag, then by observation.
 
 =over 4
 
-=item method new(:@alphabet)
+=item method new(:@alphabet!, :%p-transition, :%p-emission)
 
-The constructor takes a single argument: a list of the tag names used.
+The alphabet parameter is required (an alphabet-less HMM doesn't make too much
+sense). The transition and emission probabilities are also required for
+correct operation of C<decode>, but can be specified either on construction,
+with the C<train> method, or by manual specification via the corresponding
+fields.
 
 =item method decode(Str @input)
 
