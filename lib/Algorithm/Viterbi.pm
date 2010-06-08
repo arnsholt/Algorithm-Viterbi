@@ -62,24 +62,38 @@ method decode($hmm: @input) {
     # We represent the trellis as a 2D list. The first dimension is the "tick"
     # along the input, the second the state space. @trellis contains the
     # accumulated probabilities, @trace the state we came from.
-    my @trellis;
-    my @trace;
+    my @trellis = [];
+    my @trace = [];
 
-    my $first = @input.shift; # Shift the first observation off the input.
-    for ^@!alphabet -> $state {
-        @trellis[0][$state] = %!p-transition{Start}{$state}
-                            * %!p-emission{$state}{$first};
-        @trace[0][$state] = $!initial-state;
+    # Initialise the matrices, to keep Rakudo happy.
+    for ^@input -> $i {
+        @trellis[$i] = 0 xx +@!alphabet;
+        @trace[$i] = 0 xx + @!alphabet;
     }
 
-    # TODO: Iterate over the input, calculating probabilities as we go.
+    # Initialise the first row of the matrix.
+    my $first = @input.shift; # Shift the first observation off the input.
+    @trellis[0][0] = 0;
+    for ^@!alphabet -> $state {
+        my $tag = @!alphabet[$state];
+        @trellis[0][$state] = %!p-transition{Start}{$tag}
+                            * %!p-emission{$tag}{$first};
+        @trace[0][$state] = Start;
+    }
+
+    # Iterate over the input, calculating probabilities as we go.
     for @input.kv -> $index, $observation {
         for ^@!alphabet -> $state {
-            # TODO: Get argmax here.
             my ($max-p, $i) = (0, 0);
+            my $tag = @!alphabet[$state];
+
+            # Do the argmax to figure out which previous state is the optimal
+            # fit for this current state.
             for ^@!alphabet -> $prev-state {
-                my $new-p = @trellis[$index][$prev-state] *
-                %!p-transition{$prev-state}{$state};
+                my $prev-tag = @!alphabet[$prev-state];
+                my $new-p = @trellis[$index][$prev-state]
+                          * %!p-transition{$prev-tag}{$tag}
+                          * %!p-emission{$tag}{$observation};
 
                 if $new-p > $max-p {
                     $max-p = $new-p;
@@ -87,18 +101,39 @@ method decode($hmm: @input) {
                 }
             }
 
+            # Update the trellis and the trace.
             @trellis[$index+1][$state] = $max-p;
             @trace[$index+1][$state] = $i;
         }
     }
 
-    # TODO: Calculate the final transition probabilities, finding the optimal
-    # path through the HMM.
-    my $index = @input.end + 2;
-    for @!states -> $state {
+    # Finalisation.
+    my $index = @input.end + 1;
+    my ($max-p, $i) = (0, 0);
+    # Do the argmax to find the optimal previous state before the End state.
+    for ^@!alphabet -> $prev-state {
+        my $prev-tag = @!alphabet[$prev-state];
+        my $new-p = @trellis[$index][$prev-state]
+                  * %!p-transition{$prev-tag}{End};
+        @trellis[$index][$prev-state].perl.say;
+        %!p-transition{$prev-tag}{End}.perl.say;
+
+        if $new-p > $max-p {
+            $max-p = $new-p;
+            $i = $prev-state;
+        }
     }
 
-    # TODO: Get the best list of events from the trellis and return it.
+    # Compute the resulting list of tags by unshifting tags onto @result from
+    # the reversed trace.
+    my $final-tag = $i;
+    my @result;
+    for @trace.reverse -> @arr {
+        @result.unshift: @!alphabet[$final-tag];
+        $final-tag = @arr[$final-tag];
+    }
+
+    return @result;
 }
 
 # Compute unsmoothed bigram probabilities from an input file.
