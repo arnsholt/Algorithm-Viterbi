@@ -1,12 +1,11 @@
-Algorithm::Viterbi - Decoding Hidden Markov Models
-==============================================================================
+This module provides HMM decoding for Perl 6.
 
-This module contains an implementation of the Viterbi algorithm for decoding
-Hidden Markov Models (HMMs). It contains a class Algorithm::Viterbi, which
-handles the actual decoding of the HMM, and Algorithm::Viterbi::HMM which
-represents the HMM.
+To install it, use UFO (http://github.com/masak/ufo):
+    $ ufo
+    $ make test install
 
-XXX: An implementation of the Forward algorithm would probably use the same
-datastructure, so it would make sense to share the HMM class between them. How
-to best to this? Inverse the hierarchy, and have Algorithm::HMM contain all
-things HMM, or some other form of cleverness? See how CPAN handles this.
+Documentation is provided as POD and extensive in-code comments, see those for
+information on the usage of the module.
+
+Bugs, feedback, whatever can be sent to the author on arnsholt@gmail.com, or
+on the project's GitHub pages: http://github.com/arnsholt/Algorithm-Viterbi

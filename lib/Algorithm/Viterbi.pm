@@ -187,3 +187,89 @@ multi method train($hmm: @input) {
         }
     }
 }
+
+=begin pod
+
+=head1 NAME
+
+Algorithm::Viterbi - Decoding HMMs
+
+=head1 DESCRIPTION
+
+This module is a fairly straightforward implementation of Viterbi's algorithm
+for decoding hidden Markov models. The code is based on a Common Lisp
+implementation I wrote as coursework, itself based on pseudo-code from
+Jurafsky & Martin - Speech and language processing (2nd ed).
+
+=head1 SYNOPSIS
+
+=begin code
+
+    use Algorithm::Viterbi;
+
+    my Algorithm::Viterbi $hmm .= new(:alphabet<H C>);
+    $hmm.train("training-data.tt"); # Train from file
+    $hmm.train([ [a => 1, b => 2, a => 1],
+                 [b => 3, c => 1, a => 2] ]); # Train from hardcoded data
+    $hmm.decode(<a b c>);
+
+=end code
+
+=head1 FIELDS
+
+=over 4
+
+=item %.p-transition
+
+The transition probabilities. A hash of hashes, indexed by tag name.
+
+=item %.p-emission
+
+The emission probabilities for a given tag. A hash of hashes, indexed first by
+tag, then by observation.
+
+=back
+
+=head1 METHODS
+
+=over 4
+
+=item method new(:@alphabet)
+
+The constructor takes a single argument: a list of the tag names used.
+
+=item method decode(Str @input)
+
+The C<decode> method decodes the input according to the probabilities
+specified in the C<%.p-transition> and C<%.p-emission> fields.
+
+=item method train(Str $file)
+
+Computes unsmoothed bigram probabilities from an input file. The input format
+is described by this grammar:
+
+=begin code
+
+    grammar G {
+        token TOP { <chunk>+ }
+        token chunk { <record>+ \n }
+        token record { \w+ \t \w+ \n }
+    }
+
+=end code
+
+The records are observation, then the associated tag.
+
+=item method train(Array of Pair @data)
+
+Computes unsmoothed bigram probabilities from an Array of Array of Pairs.
+Each pair is a single observation-tag pair, and each element of the top-level
+array is a sequence that is learnt.
+
+=back
+
+=head1 AUTHOR
+
+Arne Skjærholt - L<mailto:arnsholt@gmail.com>.
+
+=end pod
