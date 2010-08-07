@@ -59,12 +59,6 @@ method decode($hmm: @input) {
     my @trellis = [];
     my @trace = [];
 
-    # Initialise the matrices, to keep Rakudo happy.
-    for ^@input -> $i {
-        @trellis[$i] = 0 xx +@!alphabet;
-        @trace[$i] = 0 xx + @!alphabet;
-    }
-
     # Initialise the first row of the matrix.
     my $first = @input.shift; # Shift the first observation off the input.
     @trellis[0][0] = 0;
