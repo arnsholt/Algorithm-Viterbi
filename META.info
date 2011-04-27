@@ -1,6 +1,6 @@
 {
     "name": "Algorithm::Viterbi",
-    "description": "HMM decoding with the Viterbi algorithm."
+    "description": "HMM decoding with the Viterbi algorithm.",
     "version": "*",
     "depends": [],
     "source-url": "git://github.com/arnsholt/Algorithm-Viterbi.git",
