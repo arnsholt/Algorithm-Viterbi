@@ -2,8 +2,8 @@ use v6;
 
 class Algorithm::Viterbi;
 
-our class Start {};
-our class End {};
+#our class Start {};
+#our class End {};
 
 # TODO:
 our role Observation {};
@@ -43,9 +43,7 @@ has %.p-emission;
 
 # TODO: It might be nice to be able to do the computations both using
 # logarithms and the way it works now?
-method BUILD(:@alphabet!) {
-    callsame;
-}
+submethod BUILD(:@!alphabet!, :%!p-transition, :%!p-emission) { }
 
 # TODO: Algorithm::Viterbi on CPAN also computes the Forward probability of
 # the sequence. Should be doable to compute as well.
@@ -64,9 +62,9 @@ method decode($hmm: @input) {
     @trellis[0][0] = 0;
     for ^@!alphabet -> $state {
         my $tag = @!alphabet[$state];
-        @trellis[0][$state] = %!p-transition{Start}{$tag}
+        @trellis[0][$state] = %!p-transition{'Start'}{$tag}
                             * %!p-emission{$tag}{$first};
-        @trace[0][$state] = Start;
+        @trace[0][$state] = 'Start';
     }
 
     # Iterate over the input, calculating probabilities as we go.
@@ -102,7 +100,7 @@ method decode($hmm: @input) {
     for ^@!alphabet -> $prev-state {
         my $prev-tag = @!alphabet[$prev-state];
         my $new-p = @trellis[$index][$prev-state]
-                  * %!p-transition{$prev-tag}{End};
+                  * %!p-transition{$prev-tag}{'End'};
 
         if $new-p > $max-p {
             $max-p = $new-p;
@@ -136,8 +134,8 @@ multi method train($hmm: Str $file) {
 multi method train($hmm: @input) {
     # First, count the number of transitions between pairs of tags, and
     # emission counts for each tag-observation pair.
-    for @input -> @sequence {
-        my $prev = Start;
+    for @input.lol -> @sequence {
+        my $prev = 'Start';
         for @sequence -> $pair {
             my ($observation, $tag) = ($pair.key, $pair.value);
 
@@ -152,13 +150,13 @@ multi method train($hmm: @input) {
         }
 
         %!p-transition{$prev} //= {};
-        %!p-transition{$prev}{End}++;
+        %!p-transition{$prev}{'End'}++;
     }
 
     # XXX: Development testing code
-    #say %!p-transition{Start}<H>; # Should be: 77
+    #say %!p-transition{'Start'}<H>; # Should be: 77
     #say %!p-transition<C><H>; # Should be: 26
-    #say %!p-transition<C>{End}; # Should be: 44
+    #say %!p-transition<C>{'End'}; # Should be: 44
     #say %!p-emission<C><3>; # Should be: 20
 
     # Compute the actual transition probabilities.
