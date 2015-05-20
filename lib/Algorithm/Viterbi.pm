@@ -1,6 +1,6 @@
 use v6;
 
-class Algorithm::Viterbi;
+unit class Algorithm::Viterbi;
 
 #our class Start {};
 #our class End {};
