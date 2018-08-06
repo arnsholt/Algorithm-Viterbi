@@ -1,7 +1,11 @@
 {
+    "perl" : "6.*",
     "name": "Algorithm::Viterbi",
     "description": "HMM decoding with the Viterbi algorithm.",
     "version": "*",
+    "provides" : {
+       "Algorithm::Viterbi" : "lib/Algorithm/Viterbi.pm"
+    },
     "depends": [],
     "source-url": "git://github.com/arnsholt/Algorithm-Viterbi.git",
     "source-type": "git"

@@ -1,6 +1,6 @@
 use v6;
 
-class Algorithm::Viterbi;
+unit class Algorithm::Viterbi;
 
 #our class Start {};
 #our class End {};
@@ -50,7 +50,9 @@ submethod BUILD(:@!alphabet!, :%!p-transition, :%!p-emission) { }
 # TODO: An improvement might be to create a Role for observations so that
 # domain objects can be passed directly to the decoder.
 #method decode($hmm: Array of Observation @input) {
-method decode($hmm: @input) {
+method decode($hmm: @in) {
+    # Need to copy in case we were passed something immutable
+    my @input = @in;
     # We represent the trellis as a 2D list. The first dimension is the "tick"
     # along the input, the second the state space. @trellis contains the
     # accumulated probabilities, @trace the state we came from.
@@ -134,7 +136,7 @@ multi method train($hmm: Str $file) {
 multi method train($hmm: @input) {
     # First, count the number of transitions between pairs of tags, and
     # emission counts for each tag-observation pair.
-    for @input.lol -> @sequence {
+    for @input -> @sequence {
         my $prev = 'Start';
         for @sequence -> $pair {
             my ($observation, $tag) = ($pair.key, $pair.value);
